@@ -1,0 +1,141 @@
+﻿@page "/Vehiculos"
+@page "/Vehiculos/{VehiculoId:int}"
+
+@using Blazored.Toast;
+@using Blazored.Toast.Services;
+@using Registro_Vehículos.BLL;
+@using Registro_Vehículos.Models;
+
+@inject IToastService toast
+
+<EditForm Model="vehiculos" OnValidSubmit="Guardar">
+    <DataAnnotationsValidator/>
+    <div class="card">
+        <div class="card-header">
+            <h3>Registro de Vehículos</h3>
+        </div>
+
+        <div class="card-body">
+            <form>
+                <div class="form-row align-items-center">
+                    <div class="col">
+                        <div class="form-group">
+                            <label>Vehículo Id</label>
+                            <div class="input-group">
+                                <InputNumber @bind-Value="vehiculos.VehiculoId" class="form-control" col-4/>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">Buscar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Marca</label>
+                    <InputText @bind-Value="vehiculos.Marca" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.Marca)"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <InputText @bind-Value="vehiculos.Modelo" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.Modelo)"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Año</label>
+                    <InputNumber @bind-Value="vehiculos.Year" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.Year)"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Color</label>
+                    <InputText @bind-Value="vehiculos.Color" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.Color)"/>
+                </div>
+
+                <div  class="form-group">
+                    <label>Precio Compra</label>
+                    <InputNumber @bind-Value="vehiculos.PrecioCompra" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.PrecioCompra)"/>
+                </div>
+
+                <div class="form-group">
+                    <label>Precio Venta</label>
+                    <InputNumber @bind-Value="vehiculos.PrecioVenta" class="form-control"/>
+                    <ValidationMessage For="@(() => vehiculos.PrecioVenta)"/>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-footer">
+            <div class="form-group text-center" display: inline-block>
+                <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">Nuevo</button>
+                <button type="submit" class="btn btn-lg btn-success">Guardar</button>
+                <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int VehiculoId { get; set; }
+
+    private Vehiculos vehiculos = new Vehiculos();
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+        Buscar();
+    }
+
+    public void Nuevo()
+    {
+        vehiculos = new Vehiculos();
+    }
+
+    private void Buscar()
+    {
+        if (vehiculos.VehiculoId > 0)
+        {
+            var encontrado = VehiculosBLL.Buscar(vehiculos.VehiculoId);
+
+            if (encontrado != null)
+                this.vehiculos = encontrado;
+            else
+                toast.ShowWarning("No encontrado.");
+        }
+    }
+
+    public void Guardar()
+    {
+        bool guardar;
+
+        guardar = VehiculosBLL.Guardar(vehiculos);
+
+        if (guardar)
+        {
+            Nuevo();
+            toast.ShowSuccess("Guardado Correctamente.");
+        }
+        else
+            toast.ShowError("No fue posible guardar.");
+    }
+
+    public void Eliminar()
+    {
+        bool eliminar;
+
+        eliminar = VehiculosBLL.Eliminar(vehiculos.VehiculoId);
+
+        if (eliminar)
+        {
+            Nuevo();
+            toast.ShowSuccess("Eliminado Correctamente.");
+        }
+        else
+            toast.ShowError("No fue posible eliminar.");
+    }
+}
